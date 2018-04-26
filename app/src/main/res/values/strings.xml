@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">mvvm sample</string>
+    <string name="title_activity_details">DetailsActivity</string>
+</resources>
