@@ -44,6 +44,10 @@ class MainActivity : AppCompatActivity() {
     private fun onPlayStateChanged(playResponse: PlayState?) {
         playResponse?.let {
             when (it) {
+                is PlayState.Loading -> {
+                    log("PlayState.Loading")
+                    progressDialog = ProgressDialog.show(this, "Loading", "Preparing to play", true)
+                }
                 is PlayState.Success -> {
                     log("PlayState.Success")
                     progressDialog?.hide()
@@ -53,10 +57,6 @@ class MainActivity : AppCompatActivity() {
                     log("PlayState.Error")
                     progressDialog?.hide()
                     showError(it.errorMessage)
-                }
-                is PlayState.Loading -> {
-                    log("PlayState.Loading")
-                    progressDialog = ProgressDialog.show(this, "Loading", "Preparing to play", true)
                 }
             }
         }
