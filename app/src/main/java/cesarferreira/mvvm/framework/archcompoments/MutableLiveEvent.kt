@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.support.annotation.MainThread
 import android.util.Log
-
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -27,21 +26,17 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
 
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<T>) {
-        if (sticky.get()) {
-            super.observe(owner, observer)
-        } else {
 
-            if (hasActiveObservers()) {
-                Log.w(TAG, "Multiple observers registered but only one will be notified of changes.")
+        // Observe the internal MutableLiveData
+        super.observe(owner, Observer { t ->
+
+            Log.d("log", "sticky: $sticky, pending: $pending")
+//            if (sticky.compareAndSet(true, false)) {
+            if (pending.compareAndSet(true, false)) {
+                observer.onChanged(t)
             }
-
-            // Observe the internal MutableLiveData
-            super.observe(owner, Observer { t ->
-                if (pending.compareAndSet(true, false)) {
-                    observer.onChanged(t)
-                }
-            })
-        }
+//            }
+        })
     }
 
     @MainThread
@@ -65,9 +60,5 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
     @MainThread
     fun call() {
         value = null
-    }
-
-    companion object {
-        private val TAG = "MutableLiveEvent"
     }
 }
