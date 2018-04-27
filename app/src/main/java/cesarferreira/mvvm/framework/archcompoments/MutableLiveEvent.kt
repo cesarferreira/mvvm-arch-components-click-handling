@@ -22,12 +22,12 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class MutableLiveEvent<T> : MutableLiveData<T>() {
 
-    private val mPending = AtomicBoolean(false)
-    private val mForgettable = AtomicBoolean(true)
+    private val pending = AtomicBoolean(false)
+    private val sticky = AtomicBoolean(false)
 
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<T>) {
-        if (!mForgettable.get()) {
+        if (sticky.get()) {
             super.observe(owner, observer)
         } else {
 
@@ -37,7 +37,7 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
 
             // Observe the internal MutableLiveData
             super.observe(owner, Observer { t ->
-                if (mPending.compareAndSet(true, false)) {
+                if (pending.compareAndSet(true, false)) {
                     observer.onChanged(t)
                 }
             })
@@ -46,16 +46,16 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
 
     @MainThread
     override fun setValue(t: T?) {
-        mPending.set(true)
+        pending.set(true)
         super.setValue(t)
     }
 
     override fun postValue(value: T) {
-        postValue(value, true)
+        postValue(value, false)
     }
 
-    fun postValue(t: T?, forgettable: Boolean = true) {
-        mForgettable.set(forgettable)
+    fun postValue(t: T?, sticky: Boolean = false) {
+        this.sticky.set(sticky)
         super.postValue(t)
     }
 

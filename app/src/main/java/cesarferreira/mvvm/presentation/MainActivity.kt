@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var moviesViewModel: MoviesViewModel
 
-
     private var progressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,14 +45,17 @@ class MainActivity : AppCompatActivity() {
         playResponse?.let {
             when (it) {
                 is PlayState.Success -> {
+                    log("PlayState.Success")
                     progressDialog?.hide()
                     navigator.goToDetails(this)//, PlayerParameters(it.uUid))
                 }
                 is PlayState.Error -> {
+                    log("PlayState.Error")
                     progressDialog?.hide()
                     showError(it.errorMessage)
                 }
                 is PlayState.Loading -> {
+                    log("PlayState.Loading")
                     progressDialog = ProgressDialog.show(this, "Loading", "Preparing to play", true)
                 }
             }
@@ -63,5 +65,9 @@ class MainActivity : AppCompatActivity() {
     private fun showError(errorMessage: String) {
         Log.e("tag", "showError:  $errorMessage")
         showToast(errorMessage)
+    }
+
+    private fun log(message: String) {
+        Log.i("log", message)
     }
 }

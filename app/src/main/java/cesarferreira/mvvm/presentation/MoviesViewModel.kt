@@ -17,7 +17,7 @@ class MoviesViewModel
 
     fun onPlayClicked(uUid: String) {
 
-        playState.postValue(PlayState.Loading(), false)
+        playState.postValue(PlayState.Loading(), true)
 
         val params = PlayUseCase.Params(uUid)
 
