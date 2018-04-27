@@ -32,9 +32,12 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
 
             Log.d("log", "sticky: $sticky, pending: $pending")
 //            if (sticky.compareAndSet(true, false)) {
-            if (pending.compareAndSet(true, false)) {
+//            if (pending.compareAndSet(true, false)) {
+            if (pending.get() && sticky.get()) {
+
                 observer.onChanged(t)
             }
+//            }
 //            }
         })
     }

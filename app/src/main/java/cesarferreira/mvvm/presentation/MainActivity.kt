@@ -74,6 +74,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        progressDialog?.dismiss()
+    }
+
     private fun showError(errorMessage: String) {
         Log.e("tag", "showError:  $errorMessage")
         showToast(errorMessage)
