@@ -17,9 +17,9 @@ constructor(private val schedulersProvider: SchedulersProvider)
             // todo check if im logged in
             // todo and every other check
             return@defer Observable
-//                    .just(PlayState.Error("The user is not logged in"))
+                    //.just(PlayState.Error("The user is not logged in"))
                     .just(PlayState.Success("AFC81C"))
-                    .delay(3, TimeUnit.SECONDS, schedulersProvider.computation())
+                    .delay(2, TimeUnit.SECONDS, schedulersProvider.computation())
         }
     }
 

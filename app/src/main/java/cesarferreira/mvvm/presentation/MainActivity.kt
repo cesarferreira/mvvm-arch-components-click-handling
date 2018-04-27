@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var navigator: Navigator
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var moviesViewModel: MoviesViewModel
+    private lateinit var viewModel: MoviesViewModel
 
     private var progressDialog: ProgressDialog? = null
 
@@ -30,14 +30,26 @@ class MainActivity : AppCompatActivity() {
 
         initializeViews()
 
-        moviesViewModel = viewModel(viewModelFactory) {
+        viewModel = viewModel(viewModelFactory) {
             observe(playState, ::onPlayStateChanged)
+            observe(actionEvent, ::handleClickResponse)
+        }
+    }
+
+    private fun handleClickResponse(movieItemAction: MovieItemAction?) {
+        movieItemAction?.let { action ->
+            when (action) {
+                is MovieItemAction.Play -> viewModel.onPlayClicked(action.params.itemId)
+                is MovieItemAction.Download -> showToast("Downloading item with uuid ${action.params.itemId}")
+                is MovieItemAction.Record -> showToast("Record item with uuid ${action.params.itemId}")
+                is MovieItemAction.Select -> navigator.goToDetails(this.applicationContext)
+            }
         }
     }
 
     private fun initializeViews() {
         playButton.setOnClickListener {
-            moviesViewModel.onPlayClicked("randomvalue")
+            viewModel.handleItemClick(ActionType.PLAY, "fakeid")
         }
     }
 
