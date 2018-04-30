@@ -42,7 +42,6 @@ class MoviesViewModel
         compositeDisposable.addAll(disposable)
     }
 
-
     private fun onDownloadClicked(uUid: String) {
 
         downloadState.postValue(DownloadState.Loading(), true)
@@ -75,7 +74,6 @@ class MoviesViewModel
         }
     }
 }
-
 
 enum class ActionType {
     PLAY,

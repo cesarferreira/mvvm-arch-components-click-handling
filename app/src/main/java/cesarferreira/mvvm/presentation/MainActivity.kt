@@ -40,21 +40,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSelectStateChanged(uUid: String?) {
-        navigator.goToDetails(this, uUid)//, PlayerParameters(it.uUid))
+        navigator.goToDetails(this, uUid)
     }
 
     private fun initializeViews() {
-        playButton.setOnClickListener {
-            viewModel.handleItemClick(ActionType.PLAY, "fakeid")
-        }
-
-        downloadButton.setOnClickListener {
-            viewModel.handleItemClick(ActionType.DOWNLOAD, "fakeid")
-        }
-
-        selectButton.setOnClickListener {
-            viewModel.handleItemClick(ActionType.SELECT, "fakeid")
-        }
+        playButton.setOnClickListener { viewModel.handleItemClick(ActionType.PLAY, "fakeid") }
+        downloadButton.setOnClickListener { viewModel.handleItemClick(ActionType.DOWNLOAD, "fakeid") }
+        selectButton.setOnClickListener { viewModel.handleItemClick(ActionType.SELECT, "fakeid") }
     }
 
     private fun onPlayStateChanged(playResponse: PlayState?) {
@@ -83,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 is DownloadState.Loading -> {
                     log("DownloadState.Loading")
-                    progressDialog = ProgressDialog.show(this, "Loading", "Preparing to Download", true)
+                    progressDialog = ProgressDialog.show(this, "Loading", "Downloading...", true)
                 }
                 is DownloadState.Success -> {
                     log("DownloadState.Success")

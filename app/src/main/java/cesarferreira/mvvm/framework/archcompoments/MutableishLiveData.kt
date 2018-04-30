@@ -49,5 +49,4 @@ class MutableishLiveData<T> : MutableLiveData<T>() {
         this.sticky.set(sticky)
         super.postValue(t)
     }
-
 }
