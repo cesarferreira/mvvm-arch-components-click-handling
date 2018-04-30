@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * Note that only one observer is going to be notified of changes.
  */
-class MutableLiveEvent<T> : MutableLiveData<T>() {
+class MutableishLiveData<T> : MutableLiveData<T>() {
 
     private val pending = AtomicBoolean(false)
     private val sticky = AtomicBoolean(false)
@@ -29,12 +29,9 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
 
         // Observe the internal MutableLiveData
         super.observe(owner, Observer { t ->
-
-            Log.d("log", "sticky: $sticky, pending: $pending")
             if (sticky.get() || pending.compareAndSet(true, false)) {
                 observer.onChanged(t)
             }
-
         })
     }
 
