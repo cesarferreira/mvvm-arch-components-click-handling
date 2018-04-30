@@ -24,7 +24,7 @@ import javax.inject.Singleton
 class Navigator
 @Inject constructor() {
 
-    fun goToDetails(context: Context) = context.startActivity(DetailsActivity.callingIntent(context))
+    fun goToDetails(context: Context, uUid: String?) = context.startActivity(DetailsActivity.callingIntent(context))
 }
 
 

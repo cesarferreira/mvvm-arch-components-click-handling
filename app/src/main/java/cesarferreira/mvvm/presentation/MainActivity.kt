@@ -35,7 +35,12 @@ class MainActivity : AppCompatActivity() {
         viewModel = viewModel(viewModelFactory) {
             observe(playState, ::onPlayStateChanged)
             observe(downloadState, ::onDownloadStateChanged)
+            observe(selectEventState, ::onSelectStateChanged)
         }
+    }
+
+    private fun onSelectStateChanged(uUid: String?) {
+        navigator.goToDetails(this, uUid)//, PlayerParameters(it.uUid))
     }
 
     private fun initializeViews() {
@@ -45,6 +50,10 @@ class MainActivity : AppCompatActivity() {
 
         downloadButton.setOnClickListener {
             viewModel.handleItemClick(ActionType.DOWNLOAD, "fakeid")
+        }
+
+        selectButton.setOnClickListener {
+            viewModel.handleItemClick(ActionType.SELECT, "fakeid")
         }
     }
 
@@ -58,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 is PlayState.Success -> {
                     log("PlayState.Success")
                     progressDialog?.hide()
-                    navigator.goToDetails(this)//, PlayerParameters(it.uUid))
+                    navigator.goToDetails(this, it.uUid)
                 }
                 is PlayState.Error -> {
                     log("PlayState.Error")

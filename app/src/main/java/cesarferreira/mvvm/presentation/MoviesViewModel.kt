@@ -7,6 +7,7 @@ import cesarferreira.mvvm.domain.PlayUseCase
 import cesarferreira.mvvm.framework.archcompoments.BaseViewModel
 import cesarferreira.mvvm.framework.archcompoments.MutableLiveEvent
 import cesarferreira.mvvm.framework.schedulers.SchedulersProvider
+import com.bskyb.v3app.framework.archcomponents.SingleLiveEvent
 import javax.inject.Inject
 
 class MoviesViewModel
@@ -19,7 +20,7 @@ class MoviesViewModel
     internal val playState = MutableLiveEvent<PlayState>()
     internal val downloadState = MutableLiveEvent<DownloadState>()
 
-//    internal val actionEvent = SingleLiveEvent<MovieItemAction>()
+    internal val selectEventState = MutableLiveEvent<String>()
 
     fun onPlayClicked(uUid: String) {
 
@@ -30,21 +31,20 @@ class MoviesViewModel
         val disposable = playUseCase.buildUseCase(params)
                 .subscribeOn(scheduler.io())
                 .observeOn(scheduler.mainThread())
-                .subscribe(
-                        {
-                            when (it) {
-                                is PlayState.Success -> playState.postValue(PlayState.Success(it.uUid))
-                                is PlayState.Error -> playState.postValue(PlayState.Error(it.errorMessage))
-                            }
-                        },
-                        { playState.postValue(PlayState.Error("Unknown error")) }
-                )
+                .subscribe({
+                    when (it) {
+                        is PlayState.Success -> playState.postValue(PlayState.Success(it.uUid))
+                        is PlayState.Error -> playState.postValue(PlayState.Error(it.errorMessage))
+                    }
+                }, {
+                    playState.postValue(PlayState.Error("Unknown error"))
+                })
 
         compositeDisposable.addAll(disposable)
     }
 
 
-    fun onDownloadClicked(uUid: String) {
+    private fun onDownloadClicked(uUid: String) {
 
         downloadState.postValue(DownloadState.Loading(), true)
 
@@ -53,15 +53,14 @@ class MoviesViewModel
         val disposable = downloadUseCase.buildUseCase(params)
                 .subscribeOn(scheduler.io())
                 .observeOn(scheduler.mainThread())
-                .subscribe(
-                        {
-                            when (it) {
-                                is DownloadState.Success -> downloadState.postValue(DownloadState.Success(it.uUid))
-                                is DownloadState.Error -> downloadState.postValue(DownloadState.Error(it.errorMessage))
-                            }
-                        },
-                        { downloadState.postValue(DownloadState.Error("Unknown error")) }
-                )
+                .subscribe({
+                    when (it) {
+                        is DownloadState.Success -> downloadState.postValue(DownloadState.Success(it.uUid))
+                        is DownloadState.Error -> downloadState.postValue(DownloadState.Error(it.errorMessage))
+                    }
+                }, {
+                    downloadState.postValue(DownloadState.Error("Unknown error"))
+                })
 
         compositeDisposable.addAll(disposable)
     }
@@ -71,22 +70,13 @@ class MoviesViewModel
         when (uiAction) {
             ActionType.PLAY -> onPlayClicked(uUid)
             ActionType.DOWNLOAD -> onDownloadClicked(uUid)
-//            ActionType.SELECT -> actionEvent.postValue(MovieItemAction.Select())
-//            ActionType.RECORD -> actionEvent.postValue(MovieItemAction.Record(PlayerParams(uUid)))
+            ActionType.SELECT -> selectEventState.postValue(uUid)
             else -> {
             }
         }
     }
 }
 
-data class PlayerParams(val itemId: String)
-
-sealed class MovieItemAction {
-    data class Play(val params: PlayerParams) : MovieItemAction()
-    data class Download(val params: PlayerParams) : MovieItemAction()
-    data class Record(internal val params: PlayerParams) : MovieItemAction()
-    class Select : MovieItemAction()
-}
 
 enum class ActionType {
     PLAY,
