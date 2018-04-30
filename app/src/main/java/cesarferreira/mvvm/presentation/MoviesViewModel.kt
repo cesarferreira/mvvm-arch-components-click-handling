@@ -1,21 +1,25 @@
 package cesarferreira.mvvm.presentation
 
+import cesarferreira.mvvm.domain.DownloadState
+import cesarferreira.mvvm.domain.DownloadUseCase
 import cesarferreira.mvvm.domain.PlayState
 import cesarferreira.mvvm.domain.PlayUseCase
 import cesarferreira.mvvm.framework.archcompoments.BaseViewModel
 import cesarferreira.mvvm.framework.archcompoments.MutableLiveEvent
 import cesarferreira.mvvm.framework.schedulers.SchedulersProvider
-import com.bskyb.v3app.framework.archcomponents.SingleLiveEvent
 import javax.inject.Inject
 
 class MoviesViewModel
 @Inject constructor(
         private val playUseCase: PlayUseCase,
+        private val downloadUseCase: DownloadUseCase,
         private val scheduler: SchedulersProvider
 ) : BaseViewModel() {
 
     internal val playState = MutableLiveEvent<PlayState>()
-    internal val actionEvent = SingleLiveEvent<MovieItemAction>()
+    internal val downloadState = MutableLiveEvent<DownloadState>()
+
+//    internal val actionEvent = SingleLiveEvent<MovieItemAction>()
 
     fun onPlayClicked(uUid: String) {
 
@@ -37,17 +41,38 @@ class MoviesViewModel
                 )
 
         compositeDisposable.addAll(disposable)
-
     }
 
+
+    fun onDownloadClicked(uUid: String) {
+
+        downloadState.postValue(DownloadState.Loading(), true)
+
+        val params = DownloadUseCase.Params(uUid)
+
+        val disposable = downloadUseCase.buildUseCase(params)
+                .subscribeOn(scheduler.io())
+                .observeOn(scheduler.mainThread())
+                .subscribe(
+                        {
+                            when (it) {
+                                is DownloadState.Success -> downloadState.postValue(DownloadState.Success(it.uUid))
+                                is DownloadState.Error -> downloadState.postValue(DownloadState.Error(it.errorMessage))
+                            }
+                        },
+                        { downloadState.postValue(DownloadState.Error("Unknown error")) }
+                )
+
+        compositeDisposable.addAll(disposable)
+    }
 
     fun handleItemClick(uiAction: ActionType, uUid: String) {
 
         when (uiAction) {
-            ActionType.PLAY -> actionEvent.postValue(MovieItemAction.Play(PlayerParams(uUid)))
-            ActionType.DOWNLOAD -> actionEvent.postValue(MovieItemAction.Download(PlayerParams(uUid)))
-            ActionType.SELECT -> actionEvent.postValue(MovieItemAction.Select())
-            ActionType.RECORD -> actionEvent.postValue(MovieItemAction.Record(PlayerParams(uUid)))
+            ActionType.PLAY -> onPlayClicked(uUid)
+            ActionType.DOWNLOAD -> onDownloadClicked(uUid)
+//            ActionType.SELECT -> actionEvent.postValue(MovieItemAction.Select())
+//            ActionType.RECORD -> actionEvent.postValue(MovieItemAction.Record(PlayerParams(uUid)))
             else -> {
             }
         }
@@ -70,3 +95,4 @@ enum class ActionType {
     RECORD,
     NONE
 }
+

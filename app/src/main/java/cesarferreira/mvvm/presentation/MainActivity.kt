@@ -5,8 +5,10 @@ import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import cesarferreira.mvvm.MyApplication
 import cesarferreira.mvvm.R
+import cesarferreira.mvvm.domain.DownloadState
 import cesarferreira.mvvm.domain.PlayState
 import cesarferreira.mvvm.framework.extensions.observe
 import cesarferreira.mvvm.framework.extensions.showToast
@@ -32,24 +34,17 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = viewModel(viewModelFactory) {
             observe(playState, ::onPlayStateChanged)
-            observe(actionEvent, ::handleClickResponse)
-        }
-    }
-
-    private fun handleClickResponse(movieItemAction: MovieItemAction?) {
-        movieItemAction?.let { action ->
-            when (action) {
-                is MovieItemAction.Play -> viewModel.onPlayClicked(action.params.itemId)
-                is MovieItemAction.Download -> showToast("Downloading item with uuid ${action.params.itemId}")
-                is MovieItemAction.Record -> showToast("Record item with uuid ${action.params.itemId}")
-                is MovieItemAction.Select -> navigator.goToDetails(this.applicationContext)
-            }
+            observe(downloadState, ::onDownloadStateChanged)
         }
     }
 
     private fun initializeViews() {
         playButton.setOnClickListener {
             viewModel.handleItemClick(ActionType.PLAY, "fakeid")
+        }
+
+        downloadButton.setOnClickListener {
+            viewModel.handleItemClick(ActionType.DOWNLOAD, "fakeid")
         }
     }
 
@@ -67,6 +62,27 @@ class MainActivity : AppCompatActivity() {
                 }
                 is PlayState.Error -> {
                     log("PlayState.Error")
+                    progressDialog?.hide()
+                    showError(it.errorMessage)
+                }
+            }
+        }
+    }
+
+    private fun onDownloadStateChanged(downloadState: DownloadState?) {
+        downloadState?.let {
+            when (it) {
+                is DownloadState.Loading -> {
+                    log("DownloadState.Loading")
+                    progressDialog = ProgressDialog.show(this, "Loading", "Preparing to Download", true)
+                }
+                is DownloadState.Success -> {
+                    log("DownloadState.Success")
+                    progressDialog?.hide()
+                    Toast.makeText(applicationContext, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show()
+                }
+                is DownloadState.Error -> {
+                    log("DownloadState.Error")
                     progressDialog?.hide()
                     showError(it.errorMessage)
                 }

@@ -31,14 +31,10 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
         super.observe(owner, Observer { t ->
 
             Log.d("log", "sticky: $sticky, pending: $pending")
-//            if (sticky.compareAndSet(true, false)) {
-//            if (pending.compareAndSet(true, false)) {
-            if (pending.get() && sticky.get()) {
-
+            if (sticky.get() || pending.compareAndSet(true, false)) {
                 observer.onChanged(t)
             }
-//            }
-//            }
+
         })
     }
 
@@ -57,11 +53,4 @@ class MutableLiveEvent<T> : MutableLiveData<T>() {
         super.postValue(t)
     }
 
-    /**
-     * Used for cases where T is Void, to make calls cleaner.
-     */
-    @MainThread
-    fun call() {
-        value = null
-    }
 }
