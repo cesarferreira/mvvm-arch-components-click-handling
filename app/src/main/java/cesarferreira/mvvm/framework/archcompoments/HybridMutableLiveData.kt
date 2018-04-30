@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * Note that only one observer is going to be notified of changes.
  */
-class MutableishLiveData<T> : MutableLiveData<T>() {
+class HybridMutableLiveData<T> : MutableLiveData<T>() {
 
     private val pending = AtomicBoolean(false)
     private val sticky = AtomicBoolean(false)

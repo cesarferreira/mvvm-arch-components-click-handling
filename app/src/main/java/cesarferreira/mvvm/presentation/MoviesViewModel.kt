@@ -5,7 +5,7 @@ import cesarferreira.mvvm.domain.DownloadUseCase
 import cesarferreira.mvvm.domain.PlayState
 import cesarferreira.mvvm.domain.PlayUseCase
 import cesarferreira.mvvm.framework.archcompoments.BaseViewModel
-import cesarferreira.mvvm.framework.archcompoments.MutableishLiveData
+import cesarferreira.mvvm.framework.archcompoments.HybridMutableLiveData
 import cesarferreira.mvvm.framework.schedulers.SchedulersProvider
 import javax.inject.Inject
 
@@ -16,12 +16,12 @@ class MoviesViewModel
         private val scheduler: SchedulersProvider
 ) : BaseViewModel() {
 
-    internal val playState = MutableishLiveData<PlayState>()
-    internal val downloadState = MutableishLiveData<DownloadState>()
+    internal val playState = HybridMutableLiveData<PlayState>()
+    internal val downloadState = HybridMutableLiveData<DownloadState>()
 
-    internal val selectEventState = MutableishLiveData<String>()
+    internal val selectEventState = HybridMutableLiveData<String>()
 
-    fun onPlayClicked(uUid: String) {
+    private fun onPlayClicked(uUid: String) {
 
         playState.postValue(PlayState.Loading(), true)
 
